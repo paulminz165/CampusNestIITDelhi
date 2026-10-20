@@ -1,0 +1,580 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>CampusNest</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap">
+<style>
+/* Mobile-first campus booking app — navy/teal palette, DM Sans */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1B2A4A;--teal:#00C9A7;--amber:#FFB347;--coral:#E85D5D;
+  --sky:#E8F4FD;--mint:#E6FAF5;--cream:#FFF8ED;
+  --bg:#F5F6F8;--card:#FFFFFF;
+  --text:#2D3142;--text-mid:#6B7280;--text-light:#9CA3AF;
+  --border:#E5E7EB;
+  --radius:14px;--radius-sm:10px;--radius-xs:7px;
+  --shadow:0 2px 12px rgba(27,42,74,.07);
+  --shadow-lg:0 8px 30px rgba(27,42,74,.12);
+  --font:'DM Sans',system-ui,sans-serif;
+  --transition:0.2s ease;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0F1724;--card:#1A2538;--text:#E5E7EB;--text-mid:#9CA3AF;--text-light:#6B7280;
+  --border:#2D3A4E;--shadow:0 2px 12px rgba(0,0,0,.3);--shadow-lg:0 8px 30px rgba(0,0,0,.4);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#0F1724;--card:#1A2538;--text:#E5E7EB;--text-mid:#9CA3AF;--text-light:#6B7280;
+  --border:#2D3A4E;--shadow:0 2px 12px rgba(0,0,0,.3);--shadow-lg:0 8px 30px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+html{font-size:16px;-webkit-tap-highlight-color:transparent}
+body{
+  font-family:var(--font);color:var(--text);background:var(--bg);
+  min-height:100%;overflow-x:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:0 72px;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+input,select,textarea{font-family:inherit;font-size:1rem;border:none;outline:none;background:none;color:var(--text)}
+a{text-decoration:none;color:inherit}
+img{display:block;max-width:100%}
+select option{color:#2D3142;background:#fff}
+
+.app{max-width:430px;margin:0 auto;position:relative}
+.screen{display:none;min-height:calc(100vh - 72px);min-height:calc(100dvh - 72px);padding:0 0 24px}
+.screen.active{display:block}
+
+/* ── TOP BAR ── */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 0 8px;position:sticky;top:env(safe-area-inset-top,0px);z-index:90;background:var(--bg)}
+.topbar-logo{display:flex;align-items:center;gap:8px}
+.topbar-logo svg{width:28px;height:28px}
+.topbar-logo span{font-weight:700;font-size:1.15rem;letter-spacing:-.02em}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-avatar{width:36px;height:36px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.85rem}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#22C55E;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.badge-24{font-size:.65rem;font-weight:600;color:var(--teal);border:1.5px solid var(--teal);border-radius:4px;padding:1px 5px;letter-spacing:.03em}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:72px;background:var(--card);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-around;z-index:100;padding-bottom:env(safe-area-inset-bottom,0)}
+.nav-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 12px;border-radius:12px;transition:var(--transition);position:relative}
+.nav-item svg{width:24px;height:24px;stroke:var(--text-light);fill:none;stroke-width:1.8;transition:var(--transition)}
+.nav-item span{font-size:.65rem;font-weight:500;color:var(--text-light);transition:var(--transition)}
+.nav-item.active svg{stroke:var(--teal)}
+.nav-item.active span{color:var(--teal);font-weight:600}
+.nav-item .cart-badge{position:absolute;top:2px;right:6px;width:18px;height:18px;border-radius:50%;background:var(--coral);color:#fff;font-size:.6rem;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+/* ── LOGIN ── */
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh;padding:24px;background:linear-gradient(160deg,var(--navy) 0%,#2D4A7A 100%);color:#fff;text-align:center;margin:-16px;margin-left:calc(-1 * max(16px,env(safe-area-inset-left,0px)));margin-right:calc(-1 * max(16px,env(safe-area-inset-right,0px)));width:100vw}
+.login-screen .logo-big{margin-bottom:8px}
+.login-screen .logo-big svg{width:64px;height:64px;margin:0 auto}
+.login-screen h1{font-size:1.8rem;font-weight:700;letter-spacing:-.03em;margin-bottom:4px}
+.login-screen .tagline{font-size:.9rem;color:rgba(255,255,255,.7);margin-bottom:40px}
+.login-form{width:100%;max-width:340px}
+.login-form .field{background:rgba(255,255,255,.12);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;border:1.5px solid rgba(255,255,255,.15);transition:var(--transition)}
+.login-form .field:focus-within{border-color:var(--teal);background:rgba(255,255,255,.18)}
+.login-form .field svg{width:20px;height:20px;stroke:rgba(255,255,255,.5);fill:none;stroke-width:1.8;flex-shrink:0}
+.login-form .field input,.login-form .field select{flex:1;background:none;color:#fff;font-size:.95rem}
+.login-form .field input::placeholder{color:rgba(255,255,255,.4)}
+.login-btn{width:100%;padding:15px;border-radius:var(--radius-sm);background:var(--teal);color:#fff;font-weight:600;font-size:1rem;margin-top:8px;transition:var(--transition)}
+.login-btn:active{transform:scale(.97)}
+.login-footer{margin-top:32px;font-size:.8rem;color:rgba(255,255,255,.45)}
+
+/* ── HOME ── */
+.greeting{padding:4px 0 16px}
+.greeting h2{font-size:1.4rem;font-weight:700;letter-spacing:-.02em}
+.greeting p{font-size:.85rem;color:var(--text-mid);margin-top:2px}
+.quick-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.qa-card{padding:18px 16px;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);transition:var(--transition);display:flex;flex-direction:column;gap:10px}
+.qa-card:active{transform:scale(.97)}
+.qa-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center}
+.qa-icon svg{width:22px;height:22px;stroke-width:1.8}
+.qa-card h3{font-size:.9rem;font-weight:600}
+.qa-card p{font-size:.72rem;color:var(--text-mid);line-height:1.4}
+.qa-card.space .qa-icon{background:var(--sky)}.qa-card.space .qa-icon svg{stroke:var(--navy)}
+.qa-card.food .qa-icon{background:var(--cream)}.qa-card.food .qa-icon svg{stroke:#E8941A}
+.qa-card.group .qa-icon{background:var(--mint)}.qa-card.group .qa-icon svg{stroke:var(--teal)}
+.qa-card.takeaway .qa-icon{background:#FDE8E8}.qa-card.takeaway .qa-icon svg{stroke:var(--coral)}
+
+.status-strip{display:flex;gap:8px;overflow-x:auto;padding:0 0 16px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.status-strip::-webkit-scrollbar{display:none}
+.status-chip{flex-shrink:0;padding:10px 16px;border-radius:var(--radius-sm);background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;gap:8px}
+.status-chip .dot{width:8px;height:8px;border-radius:50%}
+.status-chip .dot.green{background:#22C55E}.status-chip .dot.yellow{background:var(--amber)}.status-chip .dot.red{background:var(--coral)}
+.status-chip .info{display:flex;flex-direction:column}
+.status-chip .info strong{font-size:.78rem;font-weight:600}
+.status-chip .info span{font-size:.65rem;color:var(--text-mid)}
+.section-title{font-size:.78rem;font-weight:600;color:var(--text-mid);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+
+.upcoming-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:10px;display:flex;align-items:center;gap:14px}
+.upcoming-card .time-block{min-width:56px;text-align:center;padding:8px;border-radius:var(--radius-xs)}
+.upcoming-card .time-block.space-type{background:var(--sky);color:var(--navy)}
+.upcoming-card .time-block.food-type{background:var(--cream);color:#B8700A}
+.upcoming-card .time-block .t-big{font-size:1.1rem;font-weight:700;display:block}
+.upcoming-card .time-block .t-small{font-size:.6rem;font-weight:500;display:block;margin-top:1px}
+.upcoming-card .details{flex:1;min-width:0}
+.upcoming-card .details h4{font-size:.88rem;font-weight:600}
+.upcoming-card .details p{font-size:.75rem;color:var(--text-mid);margin-top:2px}
+.upcoming-card .cancel-btn{padding:6px 12px;border-radius:var(--radius-xs);font-size:.72rem;font-weight:600;color:var(--coral);border:1.5px solid var(--coral);flex-shrink:0}
+.empty-state{text-align:center;padding:40px 20px}
+.empty-state svg{width:64px;height:64px;stroke:var(--text-light);stroke-width:1;margin:0 auto 12px}
+.empty-state p{font-size:.88rem;color:var(--text-mid)}
+
+/* ── SPACE BOOKING ── */
+.back-header{display:flex;align-items:center;gap:10px;padding:14px 0 16px}
+.back-btn{width:36px;height:36px;border-radius:10px;background:var(--card);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}
+.back-btn svg{width:20px;height:20px;stroke:var(--text);fill:none;stroke-width:2}
+.back-header h2{font-size:1.15rem;font-weight:700}
+.venue-tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
+.venue-tabs::-webkit-scrollbar{display:none}
+.venue-tab{flex-shrink:0;padding:10px 18px;border-radius:var(--radius-sm);font-size:.82rem;font-weight:500;background:var(--card);border:1.5px solid var(--border);transition:var(--transition);white-space:nowrap}
+.venue-tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.datetime-row{display:flex;gap:8px;margin-bottom:16px}
+.dt-field{flex:1;padding:12px 14px;border-radius:var(--radius-sm);background:var(--card);border:1.5px solid var(--border);font-size:.82rem;color:var(--text)}
+.seat-grid-wrap{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:16px}
+.seat-grid-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.seat-grid-title h3{font-size:.95rem;font-weight:600}
+.seat-legend{display:flex;gap:10px}
+.seat-legend span{display:flex;align-items:center;gap:4px;font-size:.65rem;color:var(--text-mid)}
+.seat-legend .dot{width:10px;height:10px;border-radius:3px}
+.seat-legend .dot.avail{background:var(--teal)}.seat-legend .dot.taken{background:var(--border)}.seat-legend .dot.mine{background:var(--navy)}
+.seat-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;margin-bottom:16px}
+.seat{aspect-ratio:1;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:600;transition:var(--transition)}
+.seat.available{background:rgba(0,201,167,.15);color:var(--teal);cursor:pointer}
+.seat.available:hover,.seat.available:active{background:var(--teal);color:#fff}
+.seat.occupied{background:var(--border);color:var(--text-light);cursor:not-allowed}
+.seat.selected{background:var(--navy);color:#fff}
+.seat-info{display:flex;gap:16px;font-size:.78rem;color:var(--text-mid)}
+.seat-info span{display:flex;align-items:center;gap:4px}
+.amenity-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.amenity-tag{padding:6px 12px;border-radius:20px;font-size:.72rem;font-weight:500;background:var(--mint);color:#0A8068}
+.book-btn{width:100%;padding:15px;border-radius:var(--radius-sm);background:var(--teal);color:#fff;font-weight:600;font-size:.95rem;transition:var(--transition)}
+.book-btn:disabled{background:var(--border);color:var(--text-light)}
+.book-btn:not(:disabled):active{transform:scale(.97)}
+
+/* ── FOOD ── */
+.food-search{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius-sm);background:var(--card);border:1.5px solid var(--border);margin-bottom:14px}
+.food-search svg{width:20px;height:20px;stroke:var(--text-light);fill:none;stroke-width:1.8}
+.food-search input{flex:1;font-size:.9rem}
+.food-categories{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
+.food-categories::-webkit-scrollbar{display:none}
+.food-cat{flex-shrink:0;padding:8px 16px;border-radius:20px;font-size:.8rem;font-weight:500;background:var(--card);border:1.5px solid var(--border);transition:var(--transition);white-space:nowrap}
+.food-cat.active{background:var(--amber);color:#fff;border-color:var(--amber)}
+.menu-item{display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);margin-bottom:10px}
+.menu-item .food-emoji{width:52px;height:52px;border-radius:12px;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0}
+.menu-item .item-info{flex:1;min-width:0}
+.menu-item .item-info h4{font-size:.88rem;font-weight:600}
+.menu-item .item-info .item-meta{font-size:.72rem;color:var(--text-mid);margin-top:2px}
+.menu-item .item-info .item-price{font-size:.88rem;font-weight:700;color:var(--teal);margin-top:4px}
+.veg-badge{display:inline-flex;width:14px;height:14px;border:1.5px solid #22C55E;border-radius:2px;align-items:center;justify-content:center;margin-right:4px;vertical-align:middle}
+.veg-badge::after{content:'';width:6px;height:6px;border-radius:50%;background:#22C55E}
+.nonveg-badge{display:inline-flex;width:14px;height:14px;border:1.5px solid var(--coral);border-radius:2px;align-items:center;justify-content:center;margin-right:4px;vertical-align:middle}
+.nonveg-badge::after{content:'';width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid var(--coral)}
+.qty-control{display:flex;align-items:center;gap:0;border-radius:8px;overflow:hidden;border:1.5px solid var(--border);flex-shrink:0}
+.qty-control button{width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:600;transition:var(--transition)}
+.qty-control button:active{background:var(--border)}
+.qty-control .qty{width:28px;text-align:center;font-size:.85rem;font-weight:600}
+.add-btn{padding:7px 16px;border-radius:8px;background:var(--teal);color:#fff;font-size:.78rem;font-weight:600;flex-shrink:0}
+.cart-summary{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);width:calc(100% - 32px);max-width:398px;padding:14px 18px;border-radius:var(--radius);background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;box-shadow:var(--shadow-lg);z-index:95;transition:var(--transition)}
+.cart-summary.hidden{transform:translateX(-50%) translateY(120px);opacity:0;pointer-events:none}
+.cart-left{display:flex;flex-direction:column}
+.cart-left .cart-count{font-size:.75rem;color:rgba(255,255,255,.7)}
+.cart-left .cart-total{font-size:1.05rem;font-weight:700}
+.cart-right{padding:8px 20px;border-radius:8px;background:var(--teal);font-weight:600;font-size:.88rem}
+.order-type-toggle{display:flex;gap:0;border-radius:var(--radius-sm);background:var(--card);border:1.5px solid var(--border);overflow:hidden;margin-bottom:14px}
+.order-type-toggle button{flex:1;padding:12px;font-size:.82rem;font-weight:500;transition:var(--transition)}
+.order-type-toggle button.active{background:var(--navy);color:#fff}
+.slot-row{display:flex;gap:8px;overflow-x:auto;padding-bottom:14px;scrollbar-width:none}
+.slot-row::-webkit-scrollbar{display:none}
+.time-slot{flex-shrink:0;padding:10px 16px;border-radius:var(--radius-sm);background:var(--card);border:1.5px solid var(--border);font-size:.78rem;font-weight:500;text-align:center;transition:var(--transition)}
+.time-slot.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.time-slot .slot-label{display:block;font-size:.65rem;color:var(--text-mid);margin-top:2px}
+.time-slot.active .slot-label{color:rgba(255,255,255,.8)}
+
+/* ── BOOKINGS ── */
+.tabs-row{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.tab-btn{flex:1;padding:12px;font-size:.85rem;font-weight:500;color:var(--text-mid);border-bottom:2px solid transparent;margin-bottom:-2px;transition:var(--transition)}
+.tab-btn.active{color:var(--teal);border-bottom-color:var(--teal);font-weight:600}
+.booking-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);margin-bottom:10px;border-left:4px solid var(--teal)}
+.booking-card.food-booking{border-left-color:var(--amber)}
+.booking-card .bc-top{display:flex;justify-content:space-between;align-items:start;margin-bottom:8px}
+.booking-card .bc-top h4{font-size:.9rem;font-weight:600}
+.booking-status{padding:3px 10px;border-radius:20px;font-size:.65rem;font-weight:600}
+.booking-status.confirmed{background:var(--mint);color:#0A8068}
+.booking-status.preparing{background:var(--cream);color:#B8700A}
+.booking-status.ready{background:#E8F4FD;color:#1A73E8}
+.booking-card .bc-details{font-size:.78rem;color:var(--text-mid);line-height:1.7}
+.booking-card .bc-actions{display:flex;gap:8px;margin-top:12px}
+.booking-card .bc-actions button{flex:1;padding:10px;border-radius:var(--radius-xs);font-size:.78rem;font-weight:600}
+.btn-outline{border:1.5px solid var(--border);color:var(--text)}
+.btn-primary{background:var(--teal);color:#fff}
+.btn-danger{border:1.5px solid var(--coral);color:var(--coral)}
+
+/* ── PROFILE ── */
+.profile-header{text-align:center;padding:24px 0}
+.profile-avatar{width:72px;height:72px;border-radius:50%;background:var(--teal);color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:700;margin:0 auto 10px}
+.profile-header h3{font-size:1.1rem;font-weight:700}
+.profile-header p{font-size:.82rem;color:var(--text-mid)}
+.profile-section{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:12px;overflow:hidden}
+.profile-row{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);transition:var(--transition)}
+.profile-row:last-child{border-bottom:none}
+.profile-row:active{background:var(--bg)}
+.profile-row svg{width:20px;height:20px;stroke:var(--text-mid);fill:none;stroke-width:1.8;flex-shrink:0}
+.profile-row .pr-info{flex:1}
+.profile-row .pr-info strong{font-size:.88rem;font-weight:500;display:block}
+.profile-row .pr-info span{font-size:.72rem;color:var(--text-mid)}
+.profile-row .pr-arrow{font-size:.8rem;color:var(--text-light)}
+.stats-row{display:flex;gap:10px;margin-bottom:16px}
+.stat-card{flex:1;padding:16px;border-radius:var(--radius);background:var(--card);box-shadow:var(--shadow);text-align:center}
+.stat-card .stat-num{font-size:1.5rem;font-weight:700;color:var(--teal)}
+.stat-card .stat-label{font-size:.7rem;color:var(--text-mid);margin-top:2px}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;display:none;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{width:100%;max-width:430px;max-height:85vh;overflow-y:auto;background:var(--card);border-radius:var(--radius) var(--radius) 0 0;padding:20px 16px 32px}
+.modal-handle{width:40px;height:4px;border-radius:2px;background:var(--border);margin:0 auto 16px}
+.modal h3{font-size:1.1rem;font-weight:700;margin-bottom:16px}
+.checkout-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.checkout-item:last-child{border-bottom:none}
+.checkout-item .ci-emoji{font-size:1.3rem}
+.checkout-item .ci-info{flex:1}
+.checkout-item .ci-info h4{font-size:.85rem;font-weight:500}
+.checkout-item .ci-info span{font-size:.75rem;color:var(--text-mid)}
+.checkout-item .ci-price{font-size:.88rem;font-weight:600}
+.checkout-total{display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-top:2px solid var(--text);margin-top:8px}
+.checkout-total span{font-size:1rem;font-weight:700}
+.checkout-section{margin-bottom:16px}
+.checkout-section h4{font-size:.82rem;font-weight:600;color:var(--text-mid);margin-bottom:8px}
+.success-content{text-align:center;padding:20px 0}
+.success-content .check-circle{width:72px;height:72px;border-radius:50%;background:var(--mint);margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+.success-content .check-circle svg{width:36px;height:36px;stroke:var(--teal);fill:none;stroke-width:2.5}
+.success-content h3{font-size:1.2rem;font-weight:700;margin-bottom:6px}
+.success-content p{font-size:.85rem;color:var(--text-mid);margin-bottom:4px}
+.success-content .booking-id{display:inline-block;padding:6px 16px;border-radius:8px;background:var(--sky);font-size:.82rem;font-weight:600;color:var(--navy);margin:12px 0 20px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);max-width:380px;width:calc(100% - 32px);padding:14px 20px;border-radius:var(--radius-sm);background:var(--navy);color:#fff;font-size:.85rem;font-weight:500;z-index:300;transition:0.3s ease;opacity:0;text-align:center}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}
+</style>
+
+<!-- LOGIN -->
+<div id="loginScreen" class="login-screen">
+  <div class="logo-big">
+    <svg viewBox="0 0 64 64" fill="none"><rect x="8" y="20" width="48" height="36" rx="6" stroke="#00C9A7" stroke-width="3"/><path d="M20 20V14C20 10.686 22.686 8 26 8h12c3.314 0 6 2.686 6 6v6" stroke="#00C9A7" stroke-width="3"/><circle cx="32" cy="36" r="6" stroke="#FFB347" stroke-width="2.5"/><path d="M32 33v6M29 36h6" stroke="#FFB347" stroke-width="2"/></svg>
+  </div>
+  <h1>CampusNest</h1>
+  <p class="tagline">Book your spot. Pre-order your bite. 24/7.</p>
+  <div class="login-form">
+    <div class="field"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><input type="text" id="loginName" placeholder="Name (e.g. Rahul)"></div>
+    <div class="field"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><input type="text" id="loginEntry" placeholder="Entry No. (e.g. 2024CSZ8001)"></div>
+    <div class="field"><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg><select id="loginHostel" style="flex:1;appearance:none"><option value="" disabled selected>Select Hostel</option><option>Aravali</option><option>Girnar</option><option>Himadri</option><option>Jwalamukhi</option><option>Karakoram</option><option>Kumaon</option><option>Nilgiri</option><option>Satpura</option><option>Shivalik</option><option>Udaigiri</option><option>Vindhyachal</option><option>Zanskar</option><option>Kailash (Girls)</option><option>Himgiri (Girls)</option></select></div>
+    <button class="login-btn" onclick="handleLogin()">Get Started</button>
+  </div>
+  <p class="login-footer">IIT Delhi students only · Prototype v1.0</p>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+<div class="topbar">
+  <div class="topbar-logo"><svg viewBox="0 0 32 32" fill="none"><rect x="4" y="10" width="24" height="18" rx="3" stroke="var(--teal)" stroke-width="2"/><path d="M10 10V7a6 6 0 0112 0v3" stroke="var(--teal)" stroke-width="2"/><circle cx="16" cy="18" r="3" stroke="var(--amber)" stroke-width="1.5"/></svg><span>CampusNest</span></div>
+  <div class="topbar-right"><span class="badge-24"><span class="live-dot"></span> 24/7</span><div class="topbar-avatar" id="avatarInitial">S</div></div>
+</div>
+
+<!-- HOME -->
+<div id="homeScreen" class="screen active">
+  <div class="greeting"><h2 id="greetingText">Good evening 👋</h2><p id="greetingSubtext">What do you need tonight?</p></div>
+  <div class="quick-actions">
+    <button class="qa-card space" onclick="navigateTo('spaceScreen')"><div class="qa-icon"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="7" height="7" rx="1"/><rect x="14" y="7" width="7" height="7" rx="1"/><rect x="3" y="17" width="7" height="4" rx="1"/><rect x="14" y="17" width="7" height="4" rx="1"/><path d="M3 4h18"/></svg></div><h3>Book a Desk</h3><p>Library, study zones, labs</p></button>
+    <button class="qa-card food" onclick="navigateTo('foodScreen')"><div class="qa-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg></div><h3>Order Food</h3><p>Pre-order, skip the queue</p></button>
+    <button class="qa-card group" onclick="showGroupBooking()"><div class="qa-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg></div><h3>Group Study</h3><p>Book rooms for 4–12 people</p></button>
+    <button class="qa-card takeaway" onclick="navigateTo('foodScreen');setOrderType('takeaway')"><div class="qa-icon"><svg viewBox="0 0 24 24" fill="none"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 01-8 0"/></svg></div><h3>Takeaway</h3><p>Pack & pick up anytime</p></button>
+  </div>
+  <div class="section-title">Live availability</div>
+  <div class="status-strip" id="statusStrip"></div>
+  <div class="section-title mb-12">Your upcoming</div>
+  <div id="upcomingList"></div>
+</div>
+
+<!-- SPACE BOOKING -->
+<div id="spaceScreen" class="screen">
+  <div class="back-header"><button class="back-btn" onclick="navigateTo('homeScreen')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><h2>Book a Space</h2></div>
+  <div class="venue-tabs" id="venueTabs">
+    <button class="venue-tab active" data-venue="central-lib" onclick="selectVenue(this)">Central Library</button>
+    <button class="venue-tab" data-venue="dept-lab" onclick="selectVenue(this)">Dept Labs</button>
+    <button class="venue-tab" data-venue="study-room" onclick="selectVenue(this)">Study Rooms</button>
+    <button class="venue-tab" data-venue="open-area" onclick="selectVenue(this)">Open Areas</button>
+    <button class="venue-tab" data-venue="canteen" onclick="selectVenue(this)">Canteen</button>
+  </div>
+  <div class="datetime-row">
+    <input type="date" class="dt-field" id="bookDate">
+    <select class="dt-field" id="bookTimeStart" onchange="updateSeats()"></select>
+    <select class="dt-field" id="bookDuration"><option value="1">1 hr</option><option value="2" selected>2 hr</option><option value="3">3 hr</option><option value="4">4 hr</option></select>
+  </div>
+  <div class="amenity-tags" id="amenityTags"><span class="amenity-tag">🔌 Power outlets</span><span class="amenity-tag">📶 Wi-Fi</span><span class="amenity-tag">❄️ AC</span><span class="amenity-tag">🔇 Silent zone</span></div>
+  <div class="seat-grid-wrap">
+    <div class="seat-grid-title"><h3>Pick your spot</h3><div class="seat-legend"><span><div class="dot avail"></div>Free</span><span><div class="dot taken"></div>Taken</span><span><div class="dot mine"></div>Yours</span></div></div>
+    <div class="seat-grid" id="seatGrid"></div>
+    <div class="seat-info" id="seatInfo" style="display:none"><span>🪑 Seat <strong id="seatLabel">—</strong></span><span>🔌 <span id="seatPower">Power available</span></span></div>
+  </div>
+  <button class="book-btn" id="bookSpaceBtn" disabled onclick="confirmSpaceBooking()">Select a seat to continue</button>
+</div>
+
+<!-- FOOD -->
+<div id="foodScreen" class="screen">
+  <div class="back-header"><button class="back-btn" onclick="navigateTo('homeScreen')"><svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg></button><h2>Order Food</h2></div>
+  <div class="order-type-toggle"><button class="active" id="dineinBtn" onclick="setOrderType('dinein')">🍽️ Dine-in / Deliver to Seat</button><button id="takeawayBtn" onclick="setOrderType('takeaway')">📦 Takeaway</button></div>
+  <div class="food-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg><input type="text" id="foodSearchInput" placeholder="Search for dishes..." oninput="filterMenu()"></div>
+  <div class="food-categories" id="foodCategories">
+    <button class="food-cat active" data-cat="all" onclick="filterCategory(this)">All</button>
+    <button class="food-cat" data-cat="breakfast" onclick="filterCategory(this)">🌅 Breakfast</button>
+    <button class="food-cat" data-cat="lunch" onclick="filterCategory(this)">🍛 Lunch/Dinner</button>
+    <button class="food-cat" data-cat="snacks" onclick="filterCategory(this)">🍿 Snacks</button>
+    <button class="food-cat" data-cat="beverages" onclick="filterCategory(this)">☕ Beverages</button>
+    <button class="food-cat" data-cat="midnight" onclick="filterCategory(this)">🌙 Late Night</button>
+  </div>
+  <div class="section-title mb-8" id="menuSectionTitle">Full menu</div>
+  <div id="menuList"></div>
+  <div class="cart-summary hidden" id="cartSummary" onclick="openCheckout()"><div class="cart-left"><span class="cart-count" id="cartCountText">0 items</span><span class="cart-total" id="cartTotalText">₹0</span></div><button class="cart-right">Checkout →</button></div>
+</div>
+
+<!-- BOOKINGS -->
+<div id="bookingsScreen" class="screen">
+  <div class="back-header"><h2 style="padding-left:4px">My Bookings</h2></div>
+  <div class="tabs-row"><button class="tab-btn active" data-tab="active" onclick="switchBookingTab(this)">Active</button><button class="tab-btn" data-tab="upcoming" onclick="switchBookingTab(this)">Upcoming</button><button class="tab-btn" data-tab="past" onclick="switchBookingTab(this)">Past</button></div>
+  <div id="bookingsList"></div>
+</div>
+
+<!-- PROFILE -->
+<div id="profileScreen" class="screen">
+  <div class="profile-header"><div class="profile-avatar" id="profileAvatar">S</div><h3 id="profileName">Student</h3><p id="profileEntry">Entry · Hostel</p></div>
+  <div class="stats-row"><div class="stat-card"><div class="stat-num" id="statBookings">0</div><div class="stat-label">Bookings</div></div><div class="stat-card"><div class="stat-num" id="statOrders">0</div><div class="stat-label">Orders</div></div><div class="stat-card"><div class="stat-num" id="statSaved">0 min</div><div class="stat-label">Queue time saved</div></div></div>
+  <div class="profile-section">
+    <div class="profile-row"><svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg><div class="pr-info"><strong>Preferred Canteen</strong><span>Main Canteen (Rajdhani)</span></div><span class="pr-arrow">›</span></div>
+    <div class="profile-row"><svg viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg><div class="pr-info"><strong>Dietary Preference</strong><span>No preference set</span></div><span class="pr-arrow">›</span></div>
+    <div class="profile-row"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><div class="pr-info"><strong>Notifications</strong><span>Order ready, booking reminders</span></div><span class="pr-arrow">›</span></div>
+  </div>
+  <div class="profile-section">
+    <div class="profile-row" onclick="showToast('Feedback form coming soon!')"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg><div class="pr-info"><strong>Send Feedback</strong><span>Help us improve CampusNest</span></div><span class="pr-arrow">›</span></div>
+    <div class="profile-row" onclick="handleLogout()"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><div class="pr-info"><strong>Log Out</strong><span>Switch account or exit</span></div><span class="pr-arrow">›</span></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <button class="nav-item active" data-screen="homeScreen" onclick="navigateTo('homeScreen',this)"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>Home</span></button>
+  <button class="nav-item" data-screen="spaceScreen" onclick="navigateTo('spaceScreen',this)"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="7" height="7" rx="1"/><rect x="14" y="7" width="7" height="7" rx="1"/><rect x="3" y="17" width="7" height="4" rx="1"/><rect x="14" y="17" width="7" height="4" rx="1"/><path d="M3 4h18"/></svg><span>Spaces</span></button>
+  <button class="nav-item" data-screen="foodScreen" onclick="navigateTo('foodScreen',this)"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><path d="M6 1v3M10 1v3M14 1v3"/></svg><span>Food</span><div class="cart-badge" id="navCartBadge" style="display:none">0</div></button>
+  <button class="nav-item" data-screen="bookingsScreen" onclick="navigateTo('bookingsScreen',this)"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>Bookings</span></button>
+  <button class="nav-item" data-screen="profileScreen" onclick="navigateTo('profileScreen',this)"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></button>
+</nav>
+</div>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal-overlay" id="checkoutModal"><div class="modal"><div class="modal-handle"></div><h3>Checkout</h3><div id="checkoutItems"></div><div class="checkout-total"><span>Total</span><span id="checkoutTotalPrice">₹0</span></div><div class="checkout-section"><h4>Delivery slot</h4><div class="slot-row" id="deliverySlots"></div></div><div class="checkout-section" id="seatDeliverySection"><h4>Deliver to your booked seat?</h4><div class="slot-row"><button class="time-slot active" onclick="this.classList.add('active');this.nextElementSibling.classList.remove('active')">Yes, my seat</button><button class="time-slot" onclick="this.classList.add('active');this.previousElementSibling.classList.remove('active')">No, I'll pick up</button></div></div><button class="book-btn" onclick="placeOrder()" style="margin-top:8px">Place Order</button><button class="book-btn" onclick="closeCheckout()" style="background:var(--bg);color:var(--text);margin-top:8px">Cancel</button></div></div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal"><div class="modal"><div class="success-content"><div class="check-circle"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><h3 id="successTitle">Booking Confirmed!</h3><p id="successMsg">Your seat is reserved.</p><div class="booking-id" id="successId">CN-001</div><p style="font-size:.78rem;color:var(--text-mid)" id="successSub">You'll get a reminder 15 min before.</p><button class="book-btn" onclick="closeSuccess()" style="margin-top:12px">Done</button></div></div></div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MENU=[
+{id:1,name:'Aloo Paratha',emoji:'🫓',price:40,cat:'breakfast',veg:true,prep:10,desc:'2 pcs, butter, curd'},
+{id:2,name:'Chole Bhature',emoji:'🍛',price:50,cat:'breakfast',veg:true,prep:12,desc:'2 bhature, chana masala'},
+{id:3,name:'Masala Dosa',emoji:'🥞',price:45,cat:'breakfast',veg:true,prep:10,desc:'Sambar, chutney'},
+{id:4,name:'Bread Omelette',emoji:'🍳',price:35,cat:'breakfast',veg:false,prep:8,desc:'2 eggs, toast, ketchup'},
+{id:5,name:'Rajma Chawal',emoji:'🍚',price:55,cat:'lunch',veg:true,prep:5,desc:'Rajma, rice, salad, pickle'},
+{id:6,name:'Thali (Veg)',emoji:'🍽️',price:65,cat:'lunch',veg:true,prep:8,desc:'Dal, sabzi, roti, rice, sweet'},
+{id:7,name:'Thali (Non-Veg)',emoji:'🍗',price:85,cat:'lunch',veg:false,prep:12,desc:'Chicken curry, dal, roti, rice'},
+{id:8,name:'Butter Chicken',emoji:'🍛',price:90,cat:'lunch',veg:false,prep:15,desc:'With 3 butter naan'},
+{id:9,name:'Paneer Tikka Wrap',emoji:'🌯',price:60,cat:'lunch',veg:true,prep:10,desc:'Grilled paneer, veggies'},
+{id:10,name:'Egg Fried Rice',emoji:'🍳',price:55,cat:'lunch',veg:false,prep:10,desc:'Eggs, veggies, soy sauce'},
+{id:11,name:'Samosa (2 pcs)',emoji:'🔺',price:20,cat:'snacks',veg:true,prep:5,desc:'Aloo filling, green chutney'},
+{id:12,name:'Veg Momos',emoji:'🥟',price:40,cat:'snacks',veg:true,prep:10,desc:'8 pcs, spicy chutney'},
+{id:13,name:'Chicken Momos',emoji:'🥟',price:50,cat:'snacks',veg:false,prep:10,desc:'8 pcs, red chutney'},
+{id:14,name:'French Fries',emoji:'🍟',price:40,cat:'snacks',veg:true,prep:8,desc:'Crispy, salted, ketchup'},
+{id:15,name:'Masala Chai',emoji:'🍵',price:15,cat:'beverages',veg:true,prep:3,desc:'Freshly brewed'},
+{id:16,name:'Cold Coffee',emoji:'☕',price:40,cat:'beverages',veg:true,prep:5,desc:'Iced, sweetened, creamy'},
+{id:17,name:'Fresh Lime Soda',emoji:'🍋',price:25,cat:'beverages',veg:true,prep:3,desc:'Sweet / salt / mixed'},
+{id:18,name:'Mango Lassi',emoji:'🥭',price:35,cat:'beverages',veg:true,prep:4,desc:'Thick, chilled'},
+{id:19,name:'Maggi',emoji:'🍜',price:30,cat:'midnight',veg:true,prep:8,desc:'Classic 2x Maggi, veggies'},
+{id:20,name:'Egg Maggi',emoji:'🍜',price:40,cat:'midnight',veg:false,prep:10,desc:'Maggi + fried egg'},
+{id:21,name:'Bread Pakora',emoji:'🫓',price:25,cat:'midnight',veg:true,prep:7,desc:'4 pcs, chutney'},
+{id:22,name:'Chai + Biscuit',emoji:'🍵',price:20,cat:'midnight',veg:true,prep:3,desc:'Night-owl fuel'},
+{id:23,name:'Instant Noodles Cup',emoji:'🍜',price:25,cat:'midnight',veg:true,prep:5,desc:'Hot & ready'},
+{id:24,name:'Grilled Sandwich',emoji:'🥪',price:35,cat:'snacks',veg:true,prep:7,desc:'Cheese, veggies, grilled'},
+];
+const VENUES={'central-lib':{name:'Central Library',seats:48,silent:true,ac:true,power:true,wifi:true},'dept-lab':{name:'Department Lab',seats:32,silent:false,ac:true,power:true,wifi:true},'study-room':{name:'Study Rooms',seats:24,silent:true,ac:true,power:true,wifi:true},'open-area':{name:'Open Study Area',seats:40,silent:false,ac:false,power:false,wifi:true},'canteen':{name:'Canteen Area',seats:56,silent:false,ac:false,power:false,wifi:true}};
+let state={user:null,cart:[],bookings:[],selectedSeat:null,selectedVenue:'central-lib',orderType:'dinein',currentCat:'all'};
+
+function init(){
+  try{const s=localStorage.getItem('campusnest_user');if(s)state.user=JSON.parse(s)}catch(e){}
+  try{state.bookings=JSON.parse(localStorage.getItem('campusnest_bookings')||'[]')}catch(e){state.bookings=[]}
+  try{state.cart=JSON.parse(localStorage.getItem('campusnest_cart')||'[]')}catch(e){state.cart=[]}
+  if(state.user)showApp();
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('bookDate').value=today;document.getElementById('bookDate').min=today;
+  populateTimeSlots();renderMenu();renderStatusStrip();renderUpcoming();updateCartUI();
+}
+function handleLogin(){
+  const name=document.getElementById('loginName').value.trim();
+  const entry=document.getElementById('loginEntry').value.trim();
+  const hostel=document.getElementById('loginHostel').value;
+  if(!name){showToast('Enter your name');return}
+  if(!entry){showToast('Enter your entry number');return}
+  if(!hostel){showToast('Select your hostel');return}
+  state.user={name,entry,hostel};
+  try{localStorage.setItem('campusnest_user',JSON.stringify(state.user))}catch(e){}
+  showApp();
+}
+function handleLogout(){
+  try{localStorage.removeItem('campusnest_user')}catch(e){}
+  state.user=null;
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+  document.querySelector('.bottom-nav').style.display='none';
+}
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.querySelector('.bottom-nav').style.display='flex';
+  const u=state.user,i=u.name.charAt(0).toUpperCase();
+  document.getElementById('avatarInitial').textContent=i;
+  document.getElementById('profileAvatar').textContent=i;
+  document.getElementById('profileName').textContent=u.name;
+  document.getElementById('profileEntry').textContent=`${u.entry} · ${u.hostel} Hostel`;
+  updateGreeting();updateStats();renderUpcoming();
+}
+function updateGreeting(){
+  const h=new Date().getHours();let g='Good evening',s='What do you need tonight?';
+  if(h<5){g='Burning midnight oil';s='Late-night menu is live 🌙'}
+  else if(h<12){g='Good morning';s='Grab breakfast before class?'}
+  else if(h<17){g='Good afternoon';s='Book a spot or order lunch'}
+  else if(h<21){g='Good evening';s='Dinner time — pre-order now'}
+  else{g='Night owl mode';s='Late-night bites available 🌙'}
+  const fn=state.user?state.user.name.split(' ')[0]:'';
+  document.getElementById('greetingText').textContent=`${g}, ${fn} 👋`;
+  document.getElementById('greetingSubtext').textContent=s;
+}
+function navigateTo(id,btn){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  else document.querySelectorAll('.nav-item').forEach(n=>{if(n.dataset.screen===id)n.classList.add('active')});
+  if(id==='spaceScreen')updateSeats();if(id==='bookingsScreen')renderBookings();
+  if(id==='homeScreen'){renderUpcoming();updateStats()}window.scrollTo(0,0);
+}
+function renderStatusStrip(){
+  const spots=[{name:'Central Library',free:12,total:48,status:'green'},{name:'Rajdhani Canteen',free:5,total:30,status:'yellow'},{name:'Study Room A',free:0,total:8,status:'red'},{name:'Dept Lab 3',free:8,total:20,status:'green'},{name:'Open Area',free:22,total:40,status:'green'}];
+  document.getElementById('statusStrip').innerHTML=spots.map(s=>`<div class="status-chip"><div class="dot ${s.status}"></div><div class="info"><strong>${s.name}</strong><span>${s.free}/${s.total} spots free</span></div></div>`).join('');
+}
+function populateTimeSlots(){
+  const sel=document.getElementById('bookTimeStart');sel.innerHTML='';
+  for(let h=0;h<24;h++){const o=document.createElement('option');o.value=h;o.textContent=`${String(h).padStart(2,'0')}:00`;if(h===new Date().getHours()+1)o.selected=true;sel.appendChild(o)}
+}
+function selectVenue(btn){
+  document.querySelectorAll('.venue-tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');
+  state.selectedVenue=btn.dataset.venue;const v=VENUES[state.selectedVenue];const tags=[];
+  if(v.power)tags.push('🔌 Power outlets');if(v.wifi)tags.push('📶 Wi-Fi');if(v.ac)tags.push('❄️ AC');if(v.silent)tags.push('🔇 Silent zone');
+  document.getElementById('amenityTags').innerHTML=tags.map(t=>`<span class="amenity-tag">${t}</span>`).join('');
+  state.selectedSeat=null;updateSeats();
+}
+function updateSeats(){
+  const v=VENUES[state.selectedVenue],grid=document.getElementById('seatGrid'),cols=v.seats>40?8:6;
+  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;let html='';
+  const seed=hashStr(state.selectedVenue+document.getElementById('bookTimeStart').value);
+  for(let i=1;i<=v.seats;i++){const occ=pseudoRandom(seed+i)>.55;const pw=v.power&&(i%3!==0);
+    const lbl=String.fromCharCode(65+Math.floor((i-1)/cols))+((i-1)%cols+1);
+    html+=`<div class="seat ${occ?'occupied':'available'}" onclick="selectSeat(this,'${lbl}',${pw})">${lbl}</div>`}
+  grid.innerHTML=html;document.getElementById('seatInfo').style.display='none';
+  document.getElementById('bookSpaceBtn').disabled=true;document.getElementById('bookSpaceBtn').textContent='Select a seat to continue';
+}
+function selectSeat(el,label,pw){
+  if(el.classList.contains('occupied'))return;
+  document.querySelectorAll('.seat.selected').forEach(s=>{if(s!==el){s.classList.remove('selected');s.classList.add('available')}});
+  el.classList.toggle('available');el.classList.toggle('selected');
+  if(el.classList.contains('selected')){state.selectedSeat=label;document.getElementById('seatLabel').textContent=label;
+    document.getElementById('seatPower').textContent=pw?'Power available':'No power outlet';
+    document.getElementById('seatInfo').style.display='flex';document.getElementById('bookSpaceBtn').disabled=false;
+    document.getElementById('bookSpaceBtn').textContent=`Book Seat ${label} for ${document.getElementById('bookDuration').value} hr`}
+  else{state.selectedSeat=null;document.getElementById('seatInfo').style.display='none';
+    document.getElementById('bookSpaceBtn').disabled=true;document.getElementById('bookSpaceBtn').textContent='Select a seat to continue'}
+}
+function confirmSpaceBooking(){
+  if(!state.selectedSeat)return;const v=VENUES[state.selectedVenue],d=document.getElementById('bookDate').value,
+  t=document.getElementById('bookTimeStart').value,dur=document.getElementById('bookDuration').value,
+  endH=(parseInt(t)+parseInt(dur))%24;
+  const b={id:'CN-'+Date.now().toString(36).toUpperCase(),type:'space',venue:v.name,seat:state.selectedSeat,date:d,
+    startTime:`${String(t).padStart(2,'0')}:00`,endTime:`${String(endH).padStart(2,'0')}:00`,duration:dur,status:'confirmed',created:new Date().toISOString()};
+  state.bookings.push(b);saveBookings();
+  showSuccess('Seat Booked!',`${v.name} · Seat ${state.selectedSeat}`,b.id,`${formatTime(t)}–${formatTime(endH)} on ${formatDate(d)}`);
+  state.selectedSeat=null;
+}
+function showGroupBooking(){navigateTo('spaceScreen');const tabs=document.querySelectorAll('.venue-tab');tabs.forEach(t=>t.classList.remove('active'));tabs[2].classList.add('active');state.selectedVenue='study-room';selectVenue(tabs[2]);showToast('Pick seats for your group — select multiple!')}
+function setOrderType(type){state.orderType=type;document.getElementById('dineinBtn').classList.toggle('active',type==='dinein');document.getElementById('takeawayBtn').classList.toggle('active',type==='takeaway')}
+function renderMenu(filter='all',search=''){
+  let items=MENU;if(filter!=='all')items=items.filter(i=>i.cat===filter);
+  if(search)items=items.filter(i=>i.name.toLowerCase().includes(search.toLowerCase()));
+  const list=document.getElementById('menuList');
+  if(!items.length){list.innerHTML='<div class="empty-state"><p>No dishes found</p></div>';return}
+  list.innerHTML=items.map(item=>{const inCart=state.cart.find(c=>c.id===item.id);
+    const badge=item.veg?'<span class="veg-badge"></span>':'<span class="nonveg-badge"></span>';
+    return`<div class="menu-item"><div class="food-emoji">${item.emoji}</div><div class="item-info"><h4>${badge} ${item.name}</h4><div class="item-meta">${item.desc} · ~${item.prep} min</div><div class="item-price">₹${item.price}</div></div>${inCart?`<div class="qty-control"><button onclick="updateQty(${item.id},-1)">−</button><span class="qty">${inCart.qty}</span><button onclick="updateQty(${item.id},1)">+</button></div>`:`<button class="add-btn" onclick="addToCart(${item.id})">Add</button>`}</div>`}).join('');
+}
+function filterCategory(btn){document.querySelectorAll('.food-cat').forEach(c=>c.classList.remove('active'));btn.classList.add('active');state.currentCat=btn.dataset.cat;renderMenu(state.currentCat,document.getElementById('foodSearchInput').value);const labels={all:'Full menu',breakfast:'Breakfast',lunch:'Lunch & Dinner',snacks:'Snacks',beverages:'Beverages',midnight:'Late Night'};document.getElementById('menuSectionTitle').textContent=labels[state.currentCat]||'Menu'}
+function filterMenu(){renderMenu(state.currentCat,document.getElementById('foodSearchInput').value)}
+function addToCart(id){state.cart.push({...MENU.find(m=>m.id===id),qty:1});saveCart();updateCartUI();renderMenu(state.currentCat,document.getElementById('foodSearchInput').value)}
+function updateQty(id,d){const i=state.cart.findIndex(c=>c.id===id);if(i===-1)return;state.cart[i].qty+=d;if(state.cart[i].qty<=0)state.cart.splice(i,1);saveCart();updateCartUI();renderMenu(state.currentCat,document.getElementById('foodSearchInput').value)}
+function updateCartUI(){const count=state.cart.reduce((s,c)=>s+c.qty,0),total=state.cart.reduce((s,c)=>s+c.price*c.qty,0);const sm=document.getElementById('cartSummary'),bg=document.getElementById('navCartBadge');if(count>0){sm.classList.remove('hidden');document.getElementById('cartCountText').textContent=`${count} item${count>1?'s':''}`;document.getElementById('cartTotalText').textContent=`₹${total}`;bg.style.display='flex';bg.textContent=count}else{sm.classList.add('hidden');bg.style.display='none'}}
+function openCheckout(){
+  if(!state.cart.length)return;const items=document.getElementById('checkoutItems');
+  items.innerHTML=state.cart.map(c=>`<div class="checkout-item"><span class="ci-emoji">${c.emoji}</span><div class="ci-info"><h4>${c.name}</h4><span>×${c.qty}</span></div><span class="ci-price">₹${c.price*c.qty}</span></div>`).join('');
+  document.getElementById('checkoutTotalPrice').textContent=`₹${state.cart.reduce((s,c)=>s+c.price*c.qty,0)}`;
+  const now=new Date(),slots=[];for(let i=0;i<6;i++){const t=new Date(now.getTime()+(i*30+20)*60000);slots.push({time:`${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`,label:i===0?'ASAP':`In ${i*30+20} min`,active:i===0})}
+  document.getElementById('deliverySlots').innerHTML=slots.map(s=>`<button class="time-slot ${s.active?'active':''}" onclick="selectSlot(this)">${s.time}<span class="slot-label">${s.label}</span></button>`).join('');
+  document.getElementById('seatDeliverySection').style.display=state.bookings.some(b=>b.type==='space'&&b.status==='confirmed')?'block':'none';
+  document.getElementById('checkoutModal').classList.add('show');
+}
+function selectSlot(btn){btn.parentElement.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('active'));btn.classList.add('active')}
+function closeCheckout(){document.getElementById('checkoutModal').classList.remove('show')}
+function placeOrder(){
+  const total=state.cart.reduce((s,c)=>s+c.price*c.qty,0),itms=state.cart.map(c=>`${c.name} ×${c.qty}`).join(', ');
+  const b={id:'CN-'+Date.now().toString(36).toUpperCase(),type:'food',items:[...state.cart],total,orderType:state.orderType,status:'preparing',created:new Date().toISOString(),date:new Date().toISOString().split('T')[0]};
+  state.bookings.push(b);state.cart=[];saveCart();saveBookings();updateCartUI();renderMenu(state.currentCat);closeCheckout();
+  showSuccess('Order Placed!',`${state.orderType==='takeaway'?'Takeaway':'Dine-in'} · ₹${total}`,b.id,itms);
+}
+function renderBookings(){
+  const list=document.getElementById('bookingsList'),tab=document.querySelector('.tabs-row .tab-btn.active').dataset.tab;
+  let f=state.bookings.slice().reverse();
+  if(tab==='active')f=f.filter(b=>['confirmed','preparing','ready'].includes(b.status));
+  else if(tab==='upcoming')f=f.filter(b=>b.status==='confirmed'&&new Date(b.date)>new Date());
+  else f=f.filter(b=>['completed','cancelled'].includes(b.status));
+  if(!f.length){list.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg><p>No ${tab} bookings</p></div>`;return}
+  list.innerHTML=f.map(b=>{if(b.type==='space')return`<div class="booking-card"><div class="bc-top"><h4>🪑 ${b.venue}</h4><span class="booking-status ${b.status}">${b.status}</span></div><div class="bc-details">Seat ${b.seat} · ${formatDate(b.date)}<br>${b.startTime} – ${b.endTime} (${b.duration} hr)</div><div class="bc-actions">${b.status==='confirmed'?`<button class="btn-danger" onclick="cancelBooking('${b.id}')">Cancel</button>`:''}<button class="btn-primary" onclick="showToast('QR code shown at entrance')">Show QR</button></div></div>`;
+  const is=b.items.map(i=>`${i.emoji} ${i.name} ×${i.qty}`).join(', ');
+  return`<div class="booking-card food-booking"><div class="bc-top"><h4>🍽️ Food Order</h4><span class="booking-status ${b.status}">${b.status}</span></div><div class="bc-details">${is}<br>Total: ₹${b.total} · ${b.orderType==='takeaway'?'Takeaway':'Dine-in'}<br>${formatDate(b.date)}</div><div class="bc-actions">${b.status==='preparing'?`<button class="btn-outline" onclick="showToast('Estimated 10 min remaining')">Track</button>`:''}<button class="btn-primary" onclick="reorder('${b.id}')">Reorder</button></div></div>`}).join('');
+}
+function switchBookingTab(btn){document.querySelectorAll('.tabs-row .tab-btn').forEach(t=>t.classList.remove('active'));btn.classList.add('active');renderBookings()}
+function cancelBooking(id){const b=state.bookings.find(b=>b.id===id);if(b){b.status='cancelled';saveBookings();renderBookings();renderUpcoming();showToast('Booking cancelled')}}
+function reorder(id){const b=state.bookings.find(b=>b.id===id);if(b&&b.items){state.cart=b.items.map(i=>({...i}));saveCart();updateCartUI();navigateTo('foodScreen');renderMenu(state.currentCat)}}
+function renderUpcoming(){
+  const list=document.getElementById('upcomingList'),active=state.bookings.filter(b=>['confirmed','preparing','ready'].includes(b.status)).slice(-3).reverse();
+  if(!active.length){list.innerHTML=`<div class="empty-state"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><p>No upcoming bookings — book a space or order food to get started</p></div>`;return}
+  list.innerHTML=active.map(b=>{if(b.type==='space')return`<div class="upcoming-card"><div class="time-block space-type"><span class="t-big">${b.startTime?.split(':')[0]||'--'}</span><span class="t-small">${b.startTime||''}</span></div><div class="details"><h4>${b.venue}</h4><p>Seat ${b.seat} · ${b.duration} hr</p></div><button class="cancel-btn" onclick="cancelBooking('${b.id}')">Cancel</button></div>`;
+  return`<div class="upcoming-card"><div class="time-block food-type"><span class="t-big">${b.items?.length||0}</span><span class="t-small">items</span></div><div class="details"><h4>Food Order</h4><p>₹${b.total} · ${b.status}</p></div><button class="cancel-btn" onclick="cancelBooking('${b.id}')">Cancel</button></div>`}).join('');
+}
+function updateStats(){const sc=state.bookings.filter(b=>b.type==='space').length,fc=state.bookings.filter(b=>b.type==='food').length;document.getElementById('statBookings').textContent=sc;document.getElementById('statOrders').textContent=fc;document.getElementById('statSaved').textContent=`${(sc+fc)*12} min`}
+function showSuccess(title,msg,id,sub){document.getElementById('successTitle').textContent=title;document.getElementById('successMsg').textContent=msg;document.getElementById('successId').textContent=id;document.getElementById('successSub').textContent=sub;document.getElementById('successModal').classList.add('show')}
+function closeSuccess(){document.getElementById('successModal').classList.remove('show');navigateTo('homeScreen')}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function saveBookings(){try{localStorage.setItem('campusnest_bookings',JSON.stringify(state.bookings))}catch(e){}}
+function saveCart(){try{localStorage.setItem('campusnest_cart',JSON.stringify(state.cart))}catch(e){}}
+function formatTime(h){h=parseInt(h);if(h===0)return'12 AM';if(h<12)return h+' AM';if(h===12)return'12 PM';return(h-12)+' PM'}
+function formatDate(d){return new Date(d+'T00:00').toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}
+function hashStr(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0}return Math.abs(h)}
+function pseudoRandom(seed){let x=Math.sin(seed)*10000;return x-Math.floor(x)}
+init();
+</script>
+
+</body></html>
